@@ -1,4 +1,4 @@
-import time, statistics
+import time, statistics, pickle, json, csv
 username = "Admin"
 password = 'password'
 
@@ -22,15 +22,23 @@ def loginsequence():
 
 
 loginsequence()
+#Username to login is "Admin", Password is "password". Pay attention to capitalization, it is case sensitive.
 
-#Making more like a real program. Load times. 
+
 print("Wait... Logging on")
 time.sleep(5)
+
 
 class Student_Grades:
     def __init__(self):
         self.definitions = {}
-
+        try:
+            with open('Savedgrades.csv','r') as fp:
+                self.definitions = json.load(fp)
+                print('got student records: ' + json.dumps(self.definitions))
+        except Exception as e:
+            print('No grade file created yet.')
+            # On first run of program the file will fail to open. This is not a concern as after first use the file will be created after the user logs out.
     def addgrade(self,name,grade):
         self.definitions[name] = grade
     
@@ -53,11 +61,11 @@ def makingchoices():
         grade = int(input("enter grade as a number:"))
         studentgrades.addgrade(name, grade)
         print(f"\nName added {name}: with a grade of {grade} to gradebook: \n")
-
+        # todo: write to file after transaction (maybe after all or most of them)
         
     if pick =='2':
         print('\nCurrent gradebook: \n')
-        print (studentgrades.definitions)
+        print (json.dumps(studentgrades.definitions))
     if pick =='3':
         deletestudent = input("Enter the name of the student you wish to delete: ")
         if deletestudent not in studentgrades.definitions:
@@ -80,5 +88,7 @@ print('\nWelcome To Grade-Book!')
 last_pick = '-1'
 while (last_pick != '4'):
     last_pick = makingchoices()
-
-#In the future I plan on saving the data added to the gradedictionary to a file so it can be saved, accessed, and changed. Making the code usable.
+if last_pick == '4':
+   f = open('Savedgrades.csv','w')
+   f.write(json.dumps(studentgrades.definitions))
+   f.flush()
